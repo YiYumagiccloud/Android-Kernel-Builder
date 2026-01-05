@@ -2,7 +2,7 @@
   {
     "kernelSource": {
       "name": "ROG3-obiwan",
-      "repo": "https://github.com/Rocky7842/android_kernel_asus_sm8250",
+      "repo": "https://github.com/YiYumagiccloud/android_kernel_asus_sm8250",
       "branch": "lineage-23.0",
       "device": "obiwan",
       "defconfig": "vendor/kona-perf_defconfig"
@@ -24,8 +24,7 @@
         "LLVM_IAS": "1",
         "CLANG_TRIPLE": "aarch64-linux-gnu-",
         "CROSS_COMPILE": "aarch64-linux-gnu-",
-        "CROSS_COMPILE_ARM32": "arm-linux-gnueabi-",
-        "pre_build_command": "scripts/kconfig/merge_config.sh -m arch/arm64/configs/vendor/kona-perf_defconfig arch/arm64/configs/asus/obiwan.config && make KCONFIG_ALLCONFIG=.config alldefconfig"
+        "CROSS_COMPILE_ARM32": "arm-linux-gnueabi-"
       }
     },
     "AnyKernel3": {
