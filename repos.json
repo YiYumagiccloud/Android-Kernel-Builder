@@ -7,7 +7,7 @@
       "device": "obiwan",
       "defconfig": "vendor/kona-perf_defconfig"
     },
-    "withKernelSU": true,
+    "withKernelSU": false,
     "ccache": true,
     "toolchains": [
       {
