@@ -77,6 +77,17 @@ jobs:
               echo "正在克隆仓库工具链: $name"
               git clone --recursive --branch $branch $repo $name --depth=1
             fi
+
+            # --- 新增修复逻辑开始 ---
+            # 解决 Ubuntu 24.04 下 Proton Clang 链接器不兼容的问题
+            if [ -f "$(pwd)/$name/bin/ld" ]; then
+               echo "检测到内置链接器，正在移除以使用系统链接器..."
+               rm -rf $(pwd)/$name/bin/ld
+               rm -rf $(pwd)/$name/bin/ld.lld
+               rm -rf $(pwd)/$name/bin/ld64.lld
+            fi
+            # --- 新增修复逻辑结束 ---
+
             
             echo "$(pwd)/$name/bin" >> $GITHUB_PATH
             # 兼容某些没有 bin 目录的工具链
