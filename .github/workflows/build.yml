@@ -78,15 +78,16 @@ jobs:
               git clone --recursive --branch $branch $repo $name --depth=1
             fi
 
-            # --- 新增修复逻辑开始 ---
-            # 解决 Ubuntu 24.04 下 Proton Clang 链接器不兼容的问题
-            if [ -f "$(pwd)/$name/bin/ld" ]; then
-               echo "检测到内置链接器，正在移除以使用系统链接器..."
-               rm -rf $(pwd)/$name/bin/ld
-               rm -rf $(pwd)/$name/bin/ld.lld
-               rm -rf $(pwd)/$name/bin/ld64.lld
+            # --- 核心修复逻辑 ---
+            if [ -d "$(pwd)/$name/bin" ]; then
+               echo "正在修复工具链链接器兼容性..."
+               # 删除工具链自带的旧版链接器
+               rm -rf $(pwd)/$name/bin/ld $(pwd)/$name/bin/ld.lld $(pwd)/$name/bin/ld64.lld
+               # 创建软链接指向系统的 lld (Ubuntu 24.04 的系统 lld 支持 .relr.dyn)
+               ln -sf /usr/bin/lld $(pwd)/$name/bin/ld.lld
+               ln -sf /usr/bin/lld $(pwd)/$name/bin/ld
             fi
-            # --- 新增修复逻辑结束 ---
+            # ------------------
 
             
             echo "$(pwd)/$name/bin" >> $GITHUB_PATH
