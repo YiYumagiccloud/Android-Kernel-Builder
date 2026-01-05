@@ -119,21 +119,26 @@ jobs:
         env:
           args: ${{ steps.generate-args.outputs.args }}
         run: |
-          # 编译内核、设备树和插件
-          make ${{ env.args }} Image.gz dtbs dtbo
+          # 1. 首先编译内核镜像
+          make ${{ env.args }} Image.gz
+          
+          # 2. 编译设备树 (这通常会同时生成 .dtb 和 .dtbo)
+          # 如果你的源码支持，它会生成在 out/arch/arm64/boot/dts/vendor/
+          make ${{ env.args }} dtbs
 
       - name: "📦 制作 AnyKernel3 刷机包"
         working-directory: ./${{ env.kernelDir }}
         run: |
           git clone --depth=1 ${{ matrix.repos.AnyKernel3.repo }} -b ${{ matrix.repos.AnyKernel3.branch }} AnyKernel3
-          # 拷贝内核
-          cp ${{ env.OUT_DIR }}/arch/${{ env.ARCH }}/boot/Image.gz AnyKernel3/
-          # 拷贝 DTB (处理高通 SM8250 常见的合并方式)
-          [ -f ${{ env.OUT_DIR }}/arch/${{ env.ARCH }}/boot/dtb ] && cp ${{ env.OUT_DIR }}/arch/${{ env.ARCH }}/boot/dtb AnyKernel3/
-          [ -f ${{ env.OUT_DIR }}/arch/${{ env.ARCH }}/boot/dtbo.img ] && cp ${{ env.OUT_DIR }}/arch/${{ env.ARCH }}/boot/dtbo.img AnyKernel3/
+          
+          # 拷贝内核镜像
+          cp ${{ env.OUT_DIR }}/arch/${{ env.ARCH }}/boot/Image.gz AnyKernel3/ 2>/dev/null || cp ${{ env.OUT_DIR }}/arch/${{ env.ARCH }}/boot/Image AnyKernel3/
+          
+          # 自动寻找并拷贝 dtb 和 dtbo.img (递归查找防止路径变动)
+          find ${{ env.OUT_DIR }}/arch/${{ env.ARCH }}/boot/dts/ -name "*.dtb" -exec cp {} AnyKernel3/dtb \; 2>/dev/null || true
+          find ${{ env.OUT_DIR }}/ -name "dtbo.img" -exec cp {} AnyKernel3/dtbo.img \; 2>/dev/null || true
           
           cd AnyKernel3
-          # 移除不必要的文件并打包
           rm -rf .git README.md
           zip -r9 ../${{ env.kernelDevice }}-kernel.zip *
 
