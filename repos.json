@@ -1,31 +1,38 @@
-[  {
+[
+  {
     "kernelSource": {
-      "name": "miku-KernelSU",
-      "repo": "https://github.com/PhamtomK12/kernel_xiaomi_odin",
-      "branch": "TDA",
-      "device": "odin"
+      "name": "ROG3-obiwan",
+      "repo": "https://github.com/Rocky7842/android_kernel_asus_sm8250",
+      "branch": "lineage-23.0",
+      "device": "obiwan",
+      "defconfig": "vendor/kona-perf_defconfig"
     },
     "withKernelSU": true,
+    "ccache": true,
     "toolchains": [
       {
-        "repo": "https://android.googlesource.com/platform/prebuilts/gas/linux-x86",
-        "branch": "master",
-        "name": "gas"
-      },
-      {
-        "repo": "https://gitlab.com/ThankYouMario/android_prebuilts_clang-standalone/",
-        "branch": "11",
-        "name": "clang"
+        "url": "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r487747c.tar.gz",
+        "name": "clang",
+        "binPath": ["bin"]
       }
     ],
     "params": {
       "ARCH": "arm64",
-      "CROSS_COMPILE": "aarch64-linux-gnu-",
-      "CROSS_COMPILE_ARM32": "arm-linux-gnueabi-",
-      "CROSS_COMPILE_COMPAT": "arm-linux-gnueabi-",
-      "CLANG_TRIPLE": "aarch64-linux-gnu-",
-      "AR": "",
-      "CC": "clang"
+      "CC": "clang",
+      "externalCommand": {
+        "LLVM": "1",
+        "LLVM_IAS": "1",
+        "CLANG_TRIPLE": "aarch64-linux-gnu-",
+        "CROSS_COMPILE": "aarch64-linux-gnu-",
+        "CROSS_COMPILE_ARM32": "arm-linux-gnueabi-",
+        "pre_build_command": "scripts/kconfig/merge_config.sh -m arch/arm64/configs/vendor/kona-perf_defconfig arch/arm64/configs/asus/obiwan.config && make KCONFIG_ALLCONFIG=.config alldefconfig"
+      }
+    },
+    "AnyKernel3": {
+      "use": true,
+      "release": true,
+      "repo": "https://github.com/osm0sis/AnyKernel3",
+      "branch": "master"
     }
   }
 ]
