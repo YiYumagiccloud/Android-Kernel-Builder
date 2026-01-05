@@ -10,7 +10,7 @@ on:
 jobs:
   Set-repos:
     name: "🐂 解析配置文件"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       repos: ${{ steps.generate-matrix.outputs.repos }}
     steps:
@@ -26,7 +26,7 @@ jobs:
 
   Build-Kernel:
     name: "🐎 正在构建内核"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - Set-repos
     strategy:
@@ -50,7 +50,7 @@ jobs:
       - name: "⭐ 安装环境依赖"
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential bc curl git zip ftp gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libssl-dev lftp zstd wget libfl-dev python3 libarchive-tools jq
+          sudo apt-get install -y build-essential bc curl git zip ftp gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libssl-dev lftp zstd wget libfl-dev python2 python3 libarchive-tools jq
 
       - name: "🌟 拉取内核源码"
         working-directory: ./${{ env.kernelDir }}
@@ -78,18 +78,6 @@ jobs:
               git clone --recursive --branch $branch $repo $name --depth=1
             fi
 
-            # 核心修复：删除旧的，直接链接系统的 lld 到 /usr/bin，确保绝对优先级
-            if [ -d "$(pwd)/$name/bin" ]; then
-               echo "正在修复工具链 $name 的链接器..."
-               rm -f $(pwd)/$name/bin/ld $(pwd)/$name/bin/ld.lld $(pwd)/$name/bin/ld64.lld
-               # 这里我们不只是在工具链目录建链接，我们直接在系统 PATH 里做一个全局保证
-               sudo ln -sf /usr/bin/lld /usr/bin/ld.lld
-               sudo ln -sf /usr/bin/lld /usr/bin/ld64.lld
-               # 同时在工具链内部补全，防止内核 Makefile 写死绝对路径
-               ln -sf /usr/bin/lld $(pwd)/$name/bin/ld.lld
-               ln -sf /usr/bin/lld $(pwd)/$name/bin/ld
-            fi
-            
             echo "$(pwd)/$name/bin" >> $GITHUB_PATH
             # 兼容某些没有 bin 目录的工具链
             echo "$(pwd)/$name" >> $GITHUB_PATH
