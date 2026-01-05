@@ -126,6 +126,20 @@ jobs:
           # 如果你的源码支持，它会生成在 out/arch/arm64/boot/dts/vendor/
           make ${{ env.args }} dtbs
 
+      - name: "👌 尝试提取并合成 DTBO"
+        working-directory: ./${{ env.kernelDir }}
+        run: |
+          # 寻找 mkdtimg 工具（内核自带）
+          MKDTIMG=$(find ${{ env.OUT_DIR }} -name mkdtimg | head -n 1)
+          if [ -n "$MKDTIMG" ]; then
+            # 寻找所有的 dtbo 文件并合成 dtbo.img
+            DTBO_FILES=$(find ${{ env.OUT_DIR }} -name "*.dtbo")
+            if [ -n "$DTBO_FILES" ]; then
+              $MKDTIMG create ${{ env.OUT_DIR }}/arch/arm64/boot/dtbo.img $DTBO_FILES
+              echo "✅ 已成功手动合成 dtbo.img"
+            fi
+          fi
+
       - name: "📦 制作 AnyKernel3 刷机包"
         working-directory: ./${{ env.kernelDir }}
         run: |
